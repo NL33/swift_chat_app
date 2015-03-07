@@ -90,6 +90,10 @@ override init() {
         println(error.localizedDescription)
     }
     //
+    
+    //^^*3* DISPLAYING FOUND PEERS. Start at (11). Next steps: (a) go to AppDelegate Class and declare the MPCManager object, (b) Go to ViewController class to display them in the existing tableview.^^
+    
+    
 
 
 

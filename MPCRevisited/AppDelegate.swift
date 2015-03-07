@@ -10,12 +10,22 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    //(11) Declare an MPCManager objet
+    var mpcManager: MPCManager!
+   //continued below...
+    
     var window: UIWindow?
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+       
+        //(11) continued...initialize the MPC object above
+        mpcManager = MPCManager()
+        //
+       //^^AFTER 11, go to ViewController^^
+        
         return true
     }
 
