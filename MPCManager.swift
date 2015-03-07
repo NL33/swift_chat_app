@@ -8,11 +8,26 @@
 import UIKit
 import MultipeerConnectivity //(1)
 
+//(6) create a new protocol for implementing the delegation pattern. We declare the delegates that we will need in advance.
+protocol MPCManagerDelegate {
+    func foundPeer()
+    
+    func lostPeer()
+    
+    func invitationWasReceived(fromPeer: String)
+    
+    func connectedWithPeer(peerID: MCPeerID)
+}
+//
 
 
 class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate { //(4) confrorm to specific MPC protocols with these 3 additional delegates//
    
-    //(2) delcare the objects of the MPC framework classes that we will use
+    //(7) declare a delegate object in this class:
+     var delegate: MPCManagerDelegate?
+    //
+    
+    //(2) declare the objects of the MPC framework classes that we will use
    var peer: MCPeerID! //the peer is the MPC device
     
     var session: MCSession! //the session is the connection between 2 peers
@@ -43,5 +58,5 @@ override init() {
     advertiser = MCNearbyServiceAdvertiser(peer: peer, discoveryInfo: nil, serviceType: "appcoda-mpc") //Notice that here we set the same service type value as before. The extra parameter existing here, named discoveryInfo, is a ****dictionary that can contain any kind of extra information you want to pass to the other peers upon discovery.*** Note that both keys and values of this dictionary must be strings. For simplicity reasons, we set this parameter to nil.    
     advertiser.delegate = self
 }
-
+//
 }
