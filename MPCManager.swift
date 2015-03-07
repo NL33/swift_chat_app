@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 NL33. All rights reserved.
 //
 import UIKit
+
+//*1*. INITIAL SETUP OF CLASS. Start at (1)
 import MultipeerConnectivity //(1)
 
 //(6) create a new protocol for implementing the delegation pattern. We declare the delegates that we will need in advance.
@@ -59,4 +61,36 @@ override init() {
     advertiser.delegate = self
 }
 //
+
+//*2* BROWSE FOR PEERS. Start at (8)
+//(8) Function called by MPC when a nearby peer is found (ie, when another device is discovered).
+    func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
+        
+        foundPeers.append(peerID) //add the found peer to the foundPeers array declared previously. We will use this array as the datasource of the tableview in the ViewController class, where we will list found peers. Once we do so, we make a call to the foundPeer delegate method of the MPCManagerDelegate protocol. This delegate method is implemented in the ViewController class, and in there we reload the tableview data so the newly found peer will be displayed to the user.
+        
+        delegate?.foundPeer()
+    }
+//
+    
+//(9) Remove the Peers that are no longer available (discoverable))
+    func browser(browser: MCNearbyServiceBrowser!, lostPeer peerID: MCPeerID!) { //locate the peer that was lost in the foundPeers array, and remove it:
+        for (index, aPeer) in enumerate(foundPeers){ //identify in the array
+            if aPeer == peerID {
+                foundPeers.removeAtIndex(index) //tell the ViewController class to update the tableview with the displayed peers.
+                break
+            }
+        }
+        
+        delegate?.lostPeer() //call the delegate method to later reload the data
+    }
+    //
+    
+    //(10) Handling any erro that may occur if the browsing is unable to be performed. This simply displayes the error message:
+    func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
+        println(error.localizedDescription)
+    }
+    //
+
+
+
 }
