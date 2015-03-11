@@ -106,16 +106,17 @@ override init() {
     //(23) Connecting to a Session (back from ViewController.swft):
     func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
         switch state{
-        case MCSessionState.Connected:
+        case MCSessionState.Connected:  //when connection successful
             println("Connected to session: \(session)")
             delegate?.connectedWithPeer(peerID)
             
-        case MCSessionState.Connecting:
+        case MCSessionState.Connecting: //for when connecting
             println("Connecting to session: \(session)")
             
-        default:
+        default: //for when connection did not go through
             println("Did not connect to session: \(session)")
         }
     }
-
+//
+//(24) Go to ViewController.swift to implement the connectedwithPeer method
 }

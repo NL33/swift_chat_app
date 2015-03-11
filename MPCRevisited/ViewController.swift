@@ -176,4 +176,12 @@ func invitationWasReceived(fromPeer: String) {
 }
 //(23) Switch to MPCManager.swift to implement code for connecting to session
 
+//(24) continued from MPCManager.swift. Implement the connectedwithpeer method:
+//We start chatting right after the peers have connected to the session, so we only have to navigate to the chat view controller scene (segue to chatviewcontroller)
+func connectedWithPeer(peerID: MCPeerID) {
+    NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+        self.performSegueWithIdentifier("idSegueChat", sender: self)
+    }
+}
+//
 
