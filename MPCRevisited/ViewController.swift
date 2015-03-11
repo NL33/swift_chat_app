@@ -14,7 +14,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     @IBOutlet weak var tblPeers: UITableView!  //part of setup code
    
-    //(16) declare a Boolean property to check if the device is advertising or not (true means the device is advertising)
+    //(18) declare a Boolean property to check if the device is advertising or not (true means the device is advertising)
     var isAdvertising: Bool!
     //
     
@@ -61,7 +61,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
        //(15) continued...Create IBaction from it, called startStop Advertising
     let visibilityAction: UIAlertAction = UIAlertAction(title: actionTitle, style: UIAlertActionStyle.Default) { (alertAction) -> Void in
        //
-        /*(18) Implement the advertising action method:
+        /*(19) Implement the advertising action method:
        -- Firstly, we initialize an action sheet controller by providing it with a message and the proper style.
         --Next, depending on the current value of the isAdvertising variable, we specify the title for the first button of the action sheet by assigning the proper value to the actionTitle local variable.
         --By having the correct title, we create a new alert action which will be triggered when the user will tap in the first button.
@@ -111,7 +111,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-       //(15) display the name of each peer--access the display name of each peer in the foundPeers array:
+       //(16) display the name of each peer--access the display name of each peer in the foundPeers array:
         var cell = tableView.dequeueReusableCellWithIdentifier("idCellPeer") as UITableViewCell
         
         cell.textLabel?.text = appDelegate.mpcManager.foundPeers[indexPath.row].displayName
@@ -122,11 +122,28 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-       //(16) Specify the height of each row:
+       //(17) Specify the height of each row:
         return 60.0
     //
     }
+
+//*(5)* INVITING A PEER. start at (20)
+
+//(20) Make the tableview respond when tapping on a peer.  Then, implement the didSelectRowatIndexPath delegate method, and send the invitation to the selected peer:
+func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    let selectedPeer = appDelegate.mpcManager.foundPeers[indexPath.row] as MCPeerID
     
+    appDelegate.mpcManager.browser.invitePeer(selectedPeer, toSession: appDelegate.mpcManager.session, withContext: nil, timeout: 20)
+      /* explanation of the invitePeer method:
+            --peerID: the peer to which we want to send the invitation
+            --toSession: the session object that we initialized in the MPCManager class
+            --**withContext: This paramater can be used if you want to send some extra data to the invited peer. Requires a NSData object
+            --timeout: here we specify howmany seconds the inviter will be waiting for the other peer's answer. Default value is 30 seconds--here we set it to 20.
+       */
+}
+//
+//(21) ^^ALlow app to handle received information. Go to MPCManager.swift.
+
     //(15) Implement the foundPeer and lostPeer methods we set in the MPCManager.swift. Here, we just use them to refresh the tableview:
     func foundPeer() {
         tblPeers.reloadData()
@@ -136,7 +153,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func lostPeer() {
         tblPeers.reloadData()
     }
-}
+
 //
+//(22) (*5*( CONTINUED FROM MPCMANAGER.swift  implement the invitation was received method:
+func invitationWasReceived(fromPeer: String) {
+    let alert = UIAlertController(title: "", message: "\(fromPeer) wants to chat with you.", preferredStyle: UIAlertControllerStyle.Alert) //if invitation was received, we alert the user that they have been invited to chat. We provide two options: accept or decline.
+    
+    let acceptAction: UIAlertAction = UIAlertAction(title: "Accept", style: UIAlertActionStyle.Default) { (alertAction) -> Void in
+        self.appDelegate.mpcManager.invitationHandler(true, self.appDelegate.mpcManager.session)
+    }
+    
+    let declineAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) { (alertAction) -> Void in
+        self.appDelegate.mpcManager.invitationHandler(false, nil)
+    }
+    
+    alert.addAction(acceptAction)
+    alert.addAction(declineAction)
+    
+    NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+}
+//(23) Switch to MPCManager.swift to implement code for connecting to session
 
 

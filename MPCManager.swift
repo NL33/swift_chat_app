@@ -42,7 +42,7 @@ class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceBrowserDelegate, M
     //(3) two additional variables we will use:
     var foundPeers = [MCPeerID]()  //array to stores all the peers that the browser of a device will discover. Initialized on declaration, so no need to keep it nil.
     
-    var invitationHandler: ((Bool, MCSession!)->Void)!
+    var invitationHandler: ((Bool, MCSession!)->Void)! //the invitation handler is used to reply to the peer that sent the invitation. The bool value indicates whether the invitation was accepted or not. The mcsession is the session object, in case of a positive answer.  Connected to advertiser function
    //
 
     //(5) Initialize all the MPC objects.
@@ -93,8 +93,29 @@ override init() {
     
     //^^*3* DISPLAYING FOUND PEERS. Start at (11). Next steps: (a) go to AppDelegate Class and declare the MPCManager object, (b) Go to ViewController class to display them in the existing tableview.^^
     
-    
+    //CONTINUATION OF *5* from ViewController.Swift: (21) Allowing app to receive information
+    //(21) We do automatically give the an answer to the inviter, we will ask the user if he wants to chat or not first. To do so, we temporarily store the invitation handller to a property and after the user has responded we call it in order to reply to the invitation:
+    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
+        self.invitationHandler = invitationHandler
+        
+        delegate?.invitationWasReceived(peerID.displayName)
+    }
+    //
+    //(22) Go to viewcontroller.swift to implement the invitationWasReceivedMethod
 
-
+    //(23) Connecting to a Session (back from ViewController.swft):
+    func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
+        switch state{
+        case MCSessionState.Connected:
+            println("Connected to session: \(session)")
+            delegate?.connectedWithPeer(peerID)
+            
+        case MCSessionState.Connecting:
+            println("Connecting to session: \(session)")
+            
+        default:
+            println("Did not connect to session: \(session)")
+        }
+    }
 
 }
