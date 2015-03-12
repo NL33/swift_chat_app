@@ -119,4 +119,31 @@ override init() {
     }
 //
 //(24) Go to ViewController.swift to implement the connectedwithPeer method
+
+//*6* SENDING DATA.  Start at (26)
+//(26) create custom senddata method^^^^
+    func sendData(dictionaryWithData dictionary: Dictionary<String, String>, toPeer targetPeer: MCPeerID) -> Bool {
+            //this has two paramaters: a dictionary object that will contain the message, and the target peer.
+        let dataToSend = NSKeyedArchiver.archivedDataWithRootObject(dictionary) //converts the disctionary to an NSDATA object by archiving it using the NSKeyedArchiverclass
+        let peersArray = NSArray(object: targetPeer)  //new array initialized with the target peer as the single object
+        var error: NSError? //contains any error that may appear.
+        
+        if !session.sendData(dataToSend, toPeers: peersArray, withMode: MCSessionSendDataMode.Reliable, error: &error) { //if session does not go through then we display error
+            println(error?.localizedDescription)
+            return false
+        }
+        
+        return true
+    }
+/*summary of the above:  we will use an array for storing all messages, that will be the datasource of the tableview. Each object in the array is going to be a dictionary with a string key and a string value. We create a dictionary because we need to have a pair of data for each message sent or received: the sender (author) of the message and the message itself. When our device is the one sending the message (when we’re the authors) then the self value will be set as the sender of the message in our device, while our peer display name will be sent to the other device.
+*/
+   /*Further detail:
+this is the sendData(Data:toPeers:withMode:error:  function. it accepts the following paramaters:
+    --data: The actual data that will be sent, expressed as a NSData object.
+    --toPeers: An array (NSArray) with the peers that should receive the data.
+    --withMode: The data sending mode. There are two modes: Reliable and Unreliable. You can use the second mode in less crucial cases, where any unreceived data won’t cause any problems at all.
+    --error: A NSError object that will contain any error that may occur.
+   */
+//
+//(27) Go to ChatViewController.swift to initialize the message array (the datasource of the tableview)
 }

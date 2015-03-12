@@ -180,8 +180,10 @@ func invitationWasReceived(fromPeer: String) {
 //We start chatting right after the peers have connected to the session, so we only have to navigate to the chat view controller scene (segue to chatviewcontroller)
 func connectedWithPeer(peerID: MCPeerID) {
     NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
-        self.performSegueWithIdentifier("idSegueChat", sender: self)
+        self.performSegueWithIdentifier("idSegueChat", sender: self)  //idSegueChat is the segue name
     }
 }
 //
+
+//*6* SENDING DATA. (25) Go to MPCManager.swift to create method to send data
 
