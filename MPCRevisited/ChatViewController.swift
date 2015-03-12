@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MultipeerConnectivity //(30) required to fix error in Xcode caused by textfieldshouldreturn method.
 
 class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
 
@@ -14,8 +15,11 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
     
     @IBOutlet weak var tblChat: UITableView! //initial app setup
     
-//(27) Initialize the message array (the datasource of the tableview)(coming here after MPCManager.swift)
+//(27) Initialize the message array that will hold the messages between peers. (the datasource of the tableview)(coming here after MPCManager.swift)
+    var messagesArray: [Dictionary<String, String>] = [] //The array will be the datasource of the tableview. Each object in the array is going to be a dictionary with a string key and a string value. We create a dictionary because we need to have a pair of data for each message sent or received: the sender (author) of the message and the message itself. When our device is the one sending the message (when we’re the authors) then the self value will be set as the sender of the message in our device, while our peer display name will be sent to the other device.
     
+    let appDelegate = UIApplication.sharedApplication().delegate as AppDelegate  //we declare and instantiate an application delegate object, so we can access the mpcManager property of the AppDelegate class.
+ //
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,11 +28,14 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
         
         tblChat.delegate = self //initial app set up
         tblChat.dataSource = self //initial app set up
+
+        //(33) NOTE: we here use self sizing cells. So, the cell size is dynamic, as we do not know the length of the messages that will be in the cells. (for more, see: http://www.appcoda.com/self-sizing-cells/) . To do this, we set the number of lines in the cell's text label to zero (see step (29), and then here we set these two properties (iOS takes care of the rest):
         
         tblChat.estimatedRowHeight = 60.0 //initial app set up
         tblChat.rowHeight = UITableViewAutomaticDimension //initial app setup
-
-        txtChat.delegate = self //initial app set up
+//
+        
+        txtChat.delegate = self //initial app set up.  The ChatViewController class has already been set as the delegate of the text field.
     }
 
     override func didReceiveMemoryWarning() {
@@ -63,12 +70,73 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0; //initial app setup
+//(31) make the number of rows in the table match the total objects existing in the messagesArray:
+        return messagesArray.count
+//
     }
     
-    
+ //(32) check who the sender of the message is. If the sender's value is the self value, then we will set the purple color to the subtitle label and we will display the message: "I said". In the opposite case, we will display the orange color and display the message "X said:", where X is the display name of the other peer:
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        var cell = tableView.dequeueReusableCellWithIdentifier("idCell") as UITableViewCell
+        
+        let currentMessage = messagesArray[indexPath.row] as Dictionary<String, String>
+        
+        if let sender = currentMessage["sender"] {
+            var senderLabelText: String
+            var senderColor: UIColor
+            
+            if sender == "self"{
+                senderLabelText = "I said:"
+                senderColor = UIColor.purpleColor()
+            }
+            else{
+                senderLabelText = sender + " said:"
+                senderColor = UIColor.orangeColor()
+            }
+            
+            cell.detailTextLabel?.text = senderLabelText
+            cell.detailTextLabel?.textColor = senderColor
+        }
+        
+        if let message = currentMessage["message"] {
+            cell.textLabel?.text = message
+        }
+        
+        return cell
+    }
+//
+    
+    //(28) call the method from step 26 (in the MPCManager.swift for sending data
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
+        let messageDictionary: [String: String] = ["message": textField.text]
+        
+        if appDelegate.mpcManager.sendData(dictionaryWithData: messageDictionary, toPeer: //here, we call the custom sendData method with the messageDictionary
+            
+            appDelegate.mpcManager.session.connectedPeers[0] as MCPeerID){ //here, we specify the target peer. Specifically, the MCSession class contains an array property named ConnectedPeers, to which all the peers connected to our device are added. In our implementation, we know that only one peer will be connected to the session, so its safe to access it directly using the first index of the array.
+            
+            var dictionary: [String: String] = ["sender": "self", "message": textField.text] //if data successfully sent, then we prepare a new dictionary with the sender and the message. The self value is set as the sender (as this is our message). Then using the append method of the messagesArray we add the dictionary to the array:
+            messagesArray.append(dictionary)
+            
+            self.updateTableview() //we call this method to update the tableview. This updateTableview() is a custom method, implemented below
+        }
+        else{
+            println("Could not send data")
+        }
+        
+        textField.text = ""  //at the end of the data send, we clear the text field.
+        
+        return true
+    }
+    
+    //(29) Implement the custom updateTableview method: point is to reload the tablveview data, so any new message will be displayed there, and to automatically scroll to the end of the tableview, so the most recent message will be visible:
+    func updateTableview(){
+        tblChat.reloadData()
+        
+        if self.tblChat.contentSize.height > self.tblChat.frame.size.height {
+            tblChat.scrollToRowAtIndexPath(NSIndexPath(forRow: messagesArray.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: true) //i the height of the tableve's content size becomes greater than the height of the tableview's frame, then we must scroll. We do so by the method you see above.
+        }
     }
     
     
