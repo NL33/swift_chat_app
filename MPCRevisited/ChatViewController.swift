@@ -212,4 +212,4 @@ func handleMPCReceivedDataWithNotification(notification: NSNotification) {
 }
 //(39) Should also handle end of chat becuase the other peer just terminates the application, or otherwise the connetion is lost. Post a new notification from the browser(browser:lostPeer:) delegate method in the MPCManager.swift file. Then observe for it and handle, similarly to the above notification. [Not implemented as part of tutorial]
 
-//*9* FINISHING TOUCHES
+//*9* FINISHING TOUCHES, start at (40). Got to MPCManager.

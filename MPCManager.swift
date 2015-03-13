@@ -125,6 +125,18 @@ override init() {
         NSNotificationCenter.defaultCenter().postNotificationName("receivedMPCDataNotification", object: dictionary) //post notification (which will be observed in the ChatViewController--with further detail there)
     }
 //
+    
+    
+//*9* FINISHING TOUCHES. start at (40)
+//(40) define some delegate methods of MCSessionDelegate protocol in the MPCManager class that, while we will not use them, must be there to get rid of error messages:
+    func session(session: MCSession!, didStartReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, withProgress progress: NSProgress!) { }
+    
+    func session(session: MCSession!, didFinishReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, atURL localURL: NSURL!, withError error: NSError!) { }
+    
+    func session(session: MCSession!, didReceiveStream stream: NSInputStream!, withName streamName: String!, fromPeer peerID: MCPeerID!) { }
+//
+
+    
 //(35) back to chatviewcontroller.swift.
     
 //(24) Go to ViewController.swift to implement the connectedwithPeer method
