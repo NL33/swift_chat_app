@@ -63,9 +63,18 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
     
     // MARK: IBAction method implementation
     
+  //*8* END CHATTING.  Start at (37)
+ //(37) add bar button to chat view controller, called End Chat. Connect to ibaction endChat Use this action to send a message to the other peer telling that the chat is over, and then dismiss view controller.
     @IBAction func endChat(sender: AnyObject) {
-        
+        let messageDictionary: [String: String] = ["message": "_end_chat_"]
+        if appDelegate.mpcManager.sendData(dictionaryWithData: messageDictionary, toPeer: appDelegate.mpcManager.session.connectedPeers[0] as MCPeerID){
+            self.dismissViewControllerAnimated(true, completion: { () -> Void in //dismiss the peer, then disconnect from the session:
+                self.appDelegate.mpcManager.session.disconnect()
+            })
+        }
     }
+  
+   
     
     
     // MARK: UITableView related method implementation
@@ -181,6 +190,8 @@ func handleMPCReceivedDataWithNotification(notification: NSNotification) {
                 })
             }
             else{
+            //
+            //(38) Add code for if an end chat message is received: display an alert controller to the user notifying him that the other peer ended the chat. Then disconnect from the session:
                 // In this case an "_end_chat_" message was received.
                 // Show an alert view to the user.
                 let alert = UIAlertController(title: "", message: "\(fromPeer.displayName) ended this chat.", preferredStyle: UIAlertControllerStyle.Alert)
@@ -199,3 +210,6 @@ func handleMPCReceivedDataWithNotification(notification: NSNotification) {
         }
     }
 }
+//(39) Should also handle end of chat becuase the other peer just terminates the application, or otherwise the connetion is lost. Post a new notification from the browser(browser:lostPeer:) delegate method in the MPCManager.swift file. Then observe for it and handle, similarly to the above notification. [Not implemented as part of tutorial]
+
+//*9* FINISHING TOUCHES

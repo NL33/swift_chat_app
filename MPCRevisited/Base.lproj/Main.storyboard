@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1510" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6736"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -193,6 +193,24 @@
                                     </mask>
                                 </variation>
                             </toolbar>
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CY5-9b-XKQ">
+                                <rect key="frame" x="0.0" y="28" width="600" height="44"/>
+                                <items>
+                                    <navigationItem title="Title" id="7lm-YE-0Z7"/>
+                                </items>
+                            </navigationBar>
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oOS-Qh-xxr">
+                                <rect key="frame" x="10" y="10" width="600" height="44"/>
+                                <items>
+                                    <navigationItem title="Title" id="SKu-td-UHA">
+                                        <barButtonItem key="rightBarButtonItem" title="End Chat" id="fKh-Ye-PMe">
+                                            <connections>
+                                                <action selector="endChat:" destination="hZE-o4-oMb" id="all-ht-c8a"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -254,6 +272,7 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="endChat" destination="fKh-Ye-PMe" id="W5b-Nn-yul"/>
                         <outlet property="tblChat" destination="g2h-tz-pCD" id="SsZ-Or-gPw"/>
                         <outlet property="txtChat" destination="aHS-c7-HS9" id="ldz-3H-RJ2"/>
                     </connections>
