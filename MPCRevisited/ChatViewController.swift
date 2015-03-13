@@ -34,8 +34,14 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
         tblChat.estimatedRowHeight = 60.0 //initial app set up
         tblChat.rowHeight = UITableViewAutomaticDimension //initial app setup
 //
+    //*7* RECEIVING DATA. got to MPCManager.swiftfile to implement new method for Receiving Data. Start at (34)
         
         txtChat.delegate = self //initial app set up.  The ChatViewController class has already been set as the delegate of the text field.
+        
+    //(35) observe the notification we just set in the MPCManager.swift, so every time new data is received a notification will be posted:
+        
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleMPCReceivedDataWithNotification:", name: "receivedMPCDataNotification", object: nil)
+    //
     }
 
     override func didReceiveMemoryWarning() {
@@ -138,6 +144,58 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewDele
             tblChat.scrollToRowAtIndexPath(NSIndexPath(forRow: messagesArray.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: true) //i the height of the tableve's content size becomes greater than the height of the tableview's frame, then we must scroll. We do so by the method you see above.
         }
     }
+
+//(36) Implement the custom message, which will occur when the notification arrives, and the app will display to the tableview. Here is overview:
+/*
+--Initially, we’ll get the dictionary posted along with the notification, and we’ll “extract” the data and the peer contained in it.
+--We’ll convert the data object to a Dictionary, so we can access the message.
+--At this point, we’ll make a convention, and we’ll agree to a special phrase that means the end of chat. This phrase will be the “end_chat“ message.
+--If the message is other than the above special value, then we’ll create a new dictionary containing the sender’s display name and the message. This dictionary will be added to the messagesArray array. Also, we will update the tableview.
+--If the message signals the end of chat, then we’ll show an alert to the user letting him know that the other peer ended the chat, and we’ll dismiss the view controller. We’ll write the code for this step in the next part.
+*/
     
-    
+func handleMPCReceivedDataWithNotification(notification: NSNotification) {
+        // Get the dictionary containing the data and the source peer from the notification.
+        let receivedDataDictionary = notification.object as Dictionary<String, AnyObject>
+        
+        // "Extract" the data and the source peer from the received dictionary.
+        let data = receivedDataDictionary["data"] as? NSData
+        let fromPeer = receivedDataDictionary["fromPeer"] as MCPeerID
+        
+        // Convert the data (NSData) into a Dictionary object.
+        let dataDictionary = NSKeyedUnarchiver.unarchiveObjectWithData(data!) as Dictionary<String, String>
+        
+        // Check if there's an entry with the "message" key.
+        if let message = dataDictionary["message"] {
+            // Make sure that the message is other than "_end_chat_".
+            if message != "_end_chat_"{
+                // Create a new dictionary and set the sender and the received message to it.
+                var messageDictionary: [String: String] = ["sender": fromPeer.displayName, "message": message]
+                
+                // Add this dictionary to the messagesArray array.
+                messagesArray.append(messageDictionary)
+                
+                // Reload the tableview data and scroll to the bottom using the main thread.
+                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                    self.updateTableview()
+                })
+            }
+            else{
+                // In this case an "_end_chat_" message was received.
+                // Show an alert view to the user.
+                let alert = UIAlertController(title: "", message: "\(fromPeer.displayName) ended this chat.", preferredStyle: UIAlertControllerStyle.Alert)
+                
+                let doneAction: UIAlertAction = UIAlertAction(title: "Okay", style: UIAlertActionStyle.Default) { (alertAction) -> Void in
+                    self.appDelegate.mpcManager.session.disconnect()
+                    self.dismissViewControllerAnimated(true, completion: nil)
+                }
+                
+                alert.addAction(doneAction)
+                
+                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                    self.presentViewController(alert, animated: true, completion: nil)
+                })
+            }
+        }
+    }
 }

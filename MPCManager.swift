@@ -118,6 +118,15 @@ override init() {
         }
     }
 //
+    
+//*7* RECEIVING DATA.  (34) Implement new method to add data object and the sender peer to a dictionary. Then post a notification:
+    func session(session: MCSession!, didReceiveData data: NSData!, fromPeer peerID: MCPeerID!) {
+        let dictionary: [String: AnyObject] = ["data": data, "fromPeer": peerID] //adds the received data and sender peer to dictionary
+        NSNotificationCenter.defaultCenter().postNotificationName("receivedMPCDataNotification", object: dictionary) //post notification (which will be observed in the ChatViewController--with further detail there)
+    }
+//
+//(35) back to chatviewcontroller.swift.
+    
 //(24) Go to ViewController.swift to implement the connectedwithPeer method
 
 //*6* SENDING DATA.  Start at (26)
@@ -146,4 +155,7 @@ this is the sendData(Data:toPeers:withMode:error:  function. it accepts the foll
    */
 //
 //(27) Go to ChatViewController.swift to initialize the message array (the datasource of the tableview)
+
+    
+
 }
